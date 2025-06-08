@@ -24,3 +24,13 @@ i'll do better next time and be more careful. that's it for now.
 7:40 pm: convertVolume has been finished, the lambda setup is now so much more clean and readable
 7:46 pm: absolutely loving this template i have, i can just get cursor to write the lambdas and copypaste the code
 7:49 pm: guh
+7:51 pm: I AM ACTUALLY SO COOKED I FORGOT TO PUSH EVERYTHING TO GITHUB
+7:52 pm: bro its actually so over,,, im supposed to push hourly but i forgot to even push AT ALL IM SUCH an IDIOT aiugs
+7:55 pm: trying to deploy to nest
+7:55 pm: i forgot about .env variables
+7:58 pm: wrote my systemctl files on nest, glad i remember how to do it (jk just copied my old ones and edited them)
+7:58 pm: considered my bad coding practices
+7:59 pm: forgot about .env variables again
+8:00 pm: forgot about pip
+8:04 pm: forgot about venv
+8:05 pm: wrote requirements.txt

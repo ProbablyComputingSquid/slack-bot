@@ -525,7 +525,7 @@ def convert_units(ack, respond, command):
     elif text.startswith("time"):
         respond(convertTimeMeasurement(content))
     else:
-        respond(f"I'm sorry, but I don't know how to convert {text[1]}. Supported measurements are {''.join(supportedMeasurements)}")
+        respond(f"I'm sorry, but I don't know how to convert {text[1]}. Supported measurements are {', '.join(supportedMeasurements)}")
 
 
 
