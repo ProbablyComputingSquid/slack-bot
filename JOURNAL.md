@@ -34,3 +34,17 @@ i'll do better next time and be more careful. that's it for now.
 8:00 pm: forgot about pip
 8:04 pm: forgot about venv
 8:05 pm: wrote requirements.txt
+8:06 pn: LETS GO we got it running on slack, now time to make it BETTER
+8:06 pm: nevermind we eep tonight, need to wake up bright and early mañana
+June 9th, 2025: 
+16:33 - time to setup cronjobs
+16:43 - who cares about cronjobs when my code doesnt work :Despair:
+16:48 -  diagnosed the problem, apparently it's using "true timezones" per the stackoverflow post https://stackoverflow.com/questions/13866926/is-there-a-list-of-pytz-timezones which i did not realize is different than timezone abbreviations
+16:54 - made dates default to today instead of january 01, 1900
+17:04 - added some more niche timezones, i guess the guam users (literally none) will be happy
+17:12 - weh im fixing unit tests
+17:12 - more coverage? or im adjusting unit tests to fit my outputs 
+17:14 - timezones are so weird
+17:25 im confused why is pytz telling me that times are off by like 4 minutes huh
+17:47 - reading through block kit docs
+17:50 - converthelp time, we using block kit for this one ig

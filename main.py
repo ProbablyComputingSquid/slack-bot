@@ -23,6 +23,7 @@ app = App(
     # signing_secret=os.environ.get("SLACK_SIGNING_SECRET") # not required for socket mode
 )
 
+
 # Listens to incoming messages that contain "hello"
 @app.message("hello")
 def message_hello(message, say):
@@ -450,13 +451,58 @@ def parse_time(time_str: str) -> Optional[datetime]:
         "%d/%m/%Y",   # 06/06/2025
     ]
     
+    # Try parsing with all formats
     for fmt in formats:
         try:
-            return datetime.strptime(time_str, fmt)
+            parsed_time = datetime.strptime(time_str, fmt)
+            # If the format doesn't include a year, default to today
+            if "%Y" not in fmt:
+                today = datetime.now()
+                parsed_time = parsed_time.replace(year=today.year, month=today.month, day=today.day)
+            return parsed_time
         except ValueError:
             continue
     
     return None
+
+# Mapping of common timezone abbreviations to their full timezone names
+TIMEZONE_MAP = {
+    # US Timezones
+    "EST": "US/Eastern",
+    "EDT": "US/Eastern",
+    "CST": "US/Central",
+    "CDT": "US/Central",
+    "MST": "US/Mountain",
+    "MDT": "US/Mountain",
+    "PST": "US/Pacific",
+    "PDT": "US/Pacific",
+    "AKST": "US/Alaska",
+    "AKDT": "US/Alaska",
+    "HST": "US/Hawaii",
+    "HADT": "US/Hawaii",
+    
+    # Other Common Timezones
+    "UTC": "UTC",
+    "GMT": "GMT",
+    "BST": "Europe/London",
+    "CET": "Europe/Paris",
+    "CEST": "Europe/Paris",
+    "EET": "Europe/Athens",
+    "EEST": "Europe/Athens",
+    "IST": "Asia/Kolkata",
+    "JST": "Asia/Tokyo",
+    "AEST": "Australia/Sydney",
+    "AEDT": "Australia/Sydney",
+    "NZST": "Pacific/Auckland",
+    "NZDT": "Pacific/Auckland",
+
+    # random ahh timezones i pulled off wikipedia
+    "WET": "Atlantic/Faroe",
+    "WEST": "Atlantic/Faeroe",
+    "ACST": "Australia/Adelaide",
+    "MSK": "Europe/Moscow",
+    "SST": "Pacific/Midway",
+}
 
 def convertDate(text: list) -> str:
     if len(text) < 2:
@@ -468,35 +514,57 @@ def convertDate(text: list) -> str:
     from_tz = text[-2].upper()
     to_tz = text[-1].upper()
     
-    # Parse the time
     time = parse_time(time_str)
     if not time:
         return "Invalid time format. Please use formats like: 6:30am, 6am, 18:30, or 7:22am June 6, 2025"
     
-    # Get timezone objects
+    # Convert timezone abbreviations to full timezone names
+    if from_tz not in TIMEZONE_MAP:
+        return f"Invalid timezone: '{from_tz}'. Please use valid timezone abbreviations (e.g., PST, EST, UTC)."
+    if to_tz not in TIMEZONE_MAP:
+        return f"Invalid timezone: '{to_tz}'. Please use valid timezone abbreviations (e.g., PST, EST, UTC)."
+    
+    # Get timezones
     try:
-        from_zone = pytz.timezone(from_tz)
-        to_zone = pytz.timezone(to_tz)
+        from_zone = pytz.timezone(TIMEZONE_MAP[from_tz])
+        to_zone = pytz.timezone(TIMEZONE_MAP[to_tz])
     except pytz.exceptions.UnknownTimeZoneError as e:
-        return f"Invalid timezone: {str(e)}. Please use valid timezone abbreviations (e.g., PST, EST, UTC)."
+        return f"Invalid timezone: '{str(e)}'. Please use valid timezone abbreviations (e.g., PST, EST, UTC)."
     
     # Localize the time to the source timezone
     try:
         localized_time = from_zone.localize(time)
     except ValueError:
-        # If time is ambiguous (during DST transitions), use the first occurrence
+        # If time is ambiguous (during DST transitions), use the first occurrence // source stackoverflow
         localized_time = from_zone.localize(time, is_dst=True)
     
-    # Convert to target timezone
+    # convert to target timezone
     converted_time = localized_time.astimezone(to_zone)
     
-    # Format the output based on whether a date was provided
-    if any(c.isdigit() for c in time_str.split()[-1]):  # Check if last part contains a year
-        time_format = "%I:%M %p %B %d, %Y %Z"  # e.g., "06:30 AM June 6, 2025 PST"
-    else:
-        time_format = "%I:%M %p %Z"  # e.g., "06:30 AM PST"
+    # Check if the input contained a date by looking for year digits
+    has_date = any(c.isdigit() for c in time_str.split()[-1])
     
-    return f"{time_str} {from_tz} is {converted_time.strftime(time_format)}"
+    # Format the output based on whether a date was provided
+    if has_date:
+        # For date-time input, preserve the original date format
+        if "/" in time_str:
+            time_format = "%I:%M %p %d/%m/%Y %Z"  # "06:30 AM 06/06/2025 PST"
+        else:
+            time_format = "%I:%M %p %B %d, %Y %Z"  # "06:30 AM June 6, 2025 PST"
+    else:
+        time_format = "%I:%M %p %Z"  # "06:30 AM PST"
+    
+    # Get the timezone abbreviation without DST
+    tz_abbr = to_tz
+    
+    # Format the time with the correct timezone abbreviation
+    formatted_time = converted_time.strftime(time_format).replace(converted_time.strftime("%Z"), tz_abbr)
+    
+    # remove the default date if present
+    # 2 bucks says nobody is gonna be converting a date on the default date. if so, sucks to suck i guess??
+    formatted_time = re.sub(r" ?(January 0?1, 2020|01/01/2020)", "", formatted_time)
+    
+    return f"{time_str} {from_tz} is {formatted_time}"
 
 @app.command("/converttime")
 def convert_time(ack, respond, command):
@@ -527,8 +595,10 @@ def convert_units(ack, respond, command):
     else:
         respond(f"I'm sorry, but I don't know how to convert {text[1]}. Supported measurements are {', '.join(supportedMeasurements)}")
 
-
-
+@app.command("/converthelp")
+def convert_help(ack,respond,command):
+    ack()
+    respond("i promise ill implement this soon")
 
 # Start your app
 if __name__ == "__main__":

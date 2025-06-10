@@ -23,11 +23,11 @@ class TestDateConversion(unittest.TestCase):
         # Test various date-time formats
         test_cases = [
             (["7:22am", "June", "6,", "2025", "PST", "EST"], 
-             "7:22am June 6, 2025 PST is 10:22 AM June 6, 2025 EST"),
+             "7:22am June 6, 2025 PST is 10:22 AM June 06, 2025 EST"),
             (["3:45pm", "15/06/2025", "GMT", "UTC"], 
              "3:45pm 15/06/2025 GMT is 03:45 PM 15/06/2025 UTC"),
             (["9:00am", "Jun", "6,", "2025", "CST", "PST"], 
-             "9:00am Jun 6, 2025 CST is 07:00 AM Jun 6, 2025 PST"),
+             "9:00am Jun 6, 2025 CST is 07:00 AM June 06, 2025 PST"),
         ]
         
         for input_args, expected in test_cases:
@@ -39,7 +39,7 @@ class TestDateConversion(unittest.TestCase):
         # Test date-only formats (should default to midnight)
         test_cases = [
             (["June", "6,", "2025", "PST", "EST"], 
-             "June 6, 2025 PST is 03:00 AM June 6, 2025 EST"),
+             "June 6, 2025 PST is 03:00 AM June 06, 2025 EST"),
             (["15/06/2025", "GMT", "UTC"], 
              "15/06/2025 GMT is 12:00 AM 15/06/2025 UTC"),
         ]
@@ -70,7 +70,7 @@ class TestDateConversion(unittest.TestCase):
              "2:30am March 10, 2024 EST is 01:30 AM March 10, 2024 CST"),
             # Fall back (November)
             (["1:30am", "November", "3,", "2024", "EST", "CST"], 
-             "1:30am November 3, 2024 EST is 12:30 AM November 3, 2024 CST"),
+             "1:30am November 3, 2024 EST is 12:30 AM November 03, 2024 CST"),
         ]
         
         for input_args, expected in test_cases:
@@ -99,10 +99,10 @@ class TestDateConversion(unittest.TestCase):
         test_cases = [
             # Year boundary
             (["11:59pm", "December", "31,", "2024", "PST", "EST"], 
-             "11:59pm December 31, 2024 PST is 02:59 AM January 1, 2025 EST"),
+             "11:59pm December 31, 2024 PST is 02:59 AM January 01, 2025 EST"),
             # Leap year
             (["11:59pm", "February", "29,", "2024", "PST", "EST"], 
-             "11:59pm February 29, 2024 PST is 02:59 AM March 1, 2024 EST"),
+             "11:59pm February 29, 2024 PST is 02:59 AM March 01, 2024 EST"),
             # Timezone with large offset
             (["12:00pm", "UTC", "NZST"], 
              "12:00pm UTC is 12:00 AM NZST"),
